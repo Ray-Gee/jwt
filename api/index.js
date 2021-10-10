@@ -35,6 +35,11 @@ app.post("/api/refresh", (req, res) => {
     const newRefreshToken = generateRefreshToken(user);
 
     refreshTokens.push(newRefreshToken);
+
+    res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
   });
 });
 
@@ -64,6 +69,7 @@ app.post("/api/login", (req, res) => {
       username: user.username,
       isAdmin: user.isAdmin,
       accessToken,
+      refreshToken,
     });
   } else {
     res.status(400).json("Username or password incorrect");
@@ -95,4 +101,11 @@ app.delete("/api/users/:userId", verify, (req, res) => {
     res.status(403).json("You are not allowed to delete this user");
   }
 });
+
+app.post("/api/logout", verify, (req, res) => {
+  const refreshToken = req.body.token;
+  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+  res.status(200).json("You logged out successfully");
+});
+
 app.listen(5000, () => console.log("backend"));
